@@ -1,3 +1,5 @@
+import os
+from flask_cors import CORS
 import urllib.parse
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -6,6 +8,8 @@ from schemas import ma, ExpenseSchema
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
 # 1. Database Configuration
 raw_password = "Chanikya@123"
@@ -45,6 +49,16 @@ def add_expense():
     db.session.commit() # <--- CRITICAL LINE
     return jsonify({"message": "Success"}), 201
 
+if DATABASE_URL:
+    # Render/Aiven fix: Ensure it uses the pymysql driver
+    if DATABASE_URL.startswith("mysql://"):
+        DATABASE_URL = DATABASE_URL.replace("mysql://", "mysql+pymysql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+else:
+    # Your local connection
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/spend_wise'
+
+CORS(app)
 
 if __name__ == '__main__':
     with app.app_context():
