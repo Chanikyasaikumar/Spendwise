@@ -4,15 +4,20 @@ import { Wallet, History as HistoryIcon, ChevronDown } from 'lucide-react';
 
 function App() {
   const [expenses, setExpenses] = useState([]);
+
+ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+
   // 1. Changed default category to an empty string for the placeholder
   const [form, setForm] = useState({ title: '', amount: '', category: '' });
 
-  const fetchExpenses = async () => {
-    try {
-      const res = await axios.get('http://localhost:5000/api/expenses');
-      setExpenses(res.data);
-    } catch (err) { console.error("Connection error", err); }
-  };
+    const fetchExpenses = async () => {
+        try {
+            // Change line 12 to use the variable:
+            const res = await axios.get(`${API_BASE_URL}/api/expenses`);
+            setExpenses(res.data);
+        } catch (err) { console.error("Connection error", err); }
+    };
 
   useEffect(() => { fetchExpenses(); }, []);
 
@@ -24,6 +29,9 @@ function App() {
       alert("Please select a category");
       return;
     }
+
+    await axios.post(`${API_BASE_URL}/api/expenses`, newExpense);
+
 
     await axios.post('http://localhost:5000/api/expenses', {
       ...form,

@@ -1,5 +1,4 @@
 import os
-from flask_cors import CORS
 import urllib.parse
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -7,8 +6,8 @@ from models import db, Expense
 from schemas import ma, ExpenseSchema
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 # 1. Database Configuration
