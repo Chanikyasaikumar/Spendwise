@@ -8,12 +8,23 @@ from schemas import ma, ExpenseSchema
 app = Flask(__name__)
 
 CORS(app, resources={r"/api/*": {"origins": "*"}})
+# 1. CORS Setup
+CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+# 2. Database Logic
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
-# 1. Database Configuration
-raw_password = "Chanikya@123"
-safe_password = urllib.parse.quote_plus(raw_password)
-app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+mysqlconnector://root:{safe_password}@localhost/spendwise_db'
+if DATABASE_URL:
+    # Fix for Aiven: ensures it uses pymysql
+    if DATABASE_URL.startswith("mysql://"):
+        DATABASE_URL = DATABASE_URL.replace("mysql://", "mysql+pymysql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+else:
+    # Local fallback for your desktop only
+    # Note: Using your local password here is okay because this file stays on your PC
+    raw_password = urllib.parse.quote_plus("Chanikya@123")
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://root:{raw_password}@localhost/spendwise_db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # 2. Initialize Extensions

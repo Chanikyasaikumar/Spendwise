@@ -6,7 +6,7 @@ function App() {
   const [expenses, setExpenses] = useState([]);
 
  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
+ console.log("Current API URL:", API_BASE_URL); // Add this line!
 
   // 1. Changed default category to an empty string for the placeholder
   const [form, setForm] = useState({ title: '', amount: '', category: '' });
@@ -21,27 +21,18 @@ function App() {
 
   useEffect(() => { fetchExpenses(); }, []);
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validation: Ensure a category was selected
-    if (!form.category) {
-      alert("Please select a category");
-      return;
+    try {
+        // Change 'newExpense' to 'form' (or whatever your state variable is)
+        const response = await axios.post(`${API_BASE_URL}/api/expenses`, form);
+        fetchExpenses();
+        setForm({ title: '', amount: '', category: '' });
+    } catch (err) {
+        console.error("Connection error", err);
     }
+};
 
-    await axios.post(`${API_BASE_URL}/api/expenses`, newExpense);
-
-
-    await axios.post('http://localhost:5000/api/expenses', {
-      ...form,
-      amount: parseFloat(form.amount)
-    });
-
-    // Reset to placeholder after saving
-    setForm({ title: '', amount: '', category: '' });
-    fetchExpenses();
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 p-6 font-sans">
